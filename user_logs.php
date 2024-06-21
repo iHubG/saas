@@ -1,22 +1,16 @@
 <?php
 session_start();
+include 'db.php';
 
-require 'db.php';
-
+// Check if user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit();
 }
 
-// Fetch total number of users
-$sql_users = "SELECT COUNT(*) AS total_users FROM users";
-$result_users = $conn->query($sql_users);
-$total_users = $result_users->fetch_assoc()['total_users'];
-
-// Fetch total number of subjects
-$sql_subjects = "SELECT COUNT(*) AS total_subjects FROM classes";
-$result_subjects = $conn->query($sql_subjects);
-$total_subjects = $result_subjects->fetch_assoc()['total_subjects'];
+// Fetch user logs from the database
+$sql_logs = "SELECT * FROM user_logs ORDER BY timestamp DESC";
+$result_logs = $conn->query($sql_logs);
 ?>
 
 <!DOCTYPE html>
@@ -24,14 +18,10 @@ $total_subjects = $result_subjects->fetch_assoc()['total_subjects'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <title>User Logs</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-
     <nav class="navbar navbar-expand-lg bg-dark-subtle">
         <div class="container-fluid">
             <a class="navbar-brand d-none-lg d-flex" href="admin_dashboard.php">Admin</a>
@@ -60,32 +50,40 @@ $total_subjects = $result_subjects->fetch_assoc()['total_subjects'];
             </div>
         </div>
     </nav>
-
     <div class="container mt-4">
-        <div class="row row-cols-1 row-cols-md-2 g-4">
-            <!-- Card for Total Users -->
+        <div class="row">
             <div class="col">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Users</h5>
-                        <p class="card-text fs-1"><?php echo $total_users; ?></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card for Total Subjects -->
-            <div class="col">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Subjects</h5>
-                        <p class="card-text fs-1"><?php echo $total_subjects; ?></p>
-                    </div>
+                <h1>User Logs</h1>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Action</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($result_logs->num_rows > 0) : ?>
+                                <?php while ($row = $result_logs->fetch_assoc()) : ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['id']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['log_data']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['timestamp']); ?></td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else : ?>
+                                <tr>
+                                    <td colspan="4">No logs found</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -12,7 +12,7 @@ include 'db.php';
 
 // Fetch instructor's name from the database based on user ID
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT name FROM Users WHERE id='$user_id'";
+$sql = "SELECT name FROM users WHERE id='$user_id'";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {

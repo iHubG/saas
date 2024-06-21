@@ -26,17 +26,30 @@ if ($result->num_rows > 0) {
 
 // Handle form submission for adding class records
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $last_name = $_POST['last_name'];
-    $first_name = $_POST['first_name'];
-    $middle_initial = $_POST['middle_initial'];
-    $student_name = $last_name . ', ' . $first_name . ' ' . $middle_initial;
+    $student_name = $_POST['name'];
 
-    // Insert class record into the database
-    $insert_sql = "INSERT INTO class_records (subject_id, teacher_id, student_name) VALUES ('$subject_id', '{$_SESSION['user_id']}', '$student_name')";
-    if ($conn->query($insert_sql) === TRUE) {
-        $success_message = "Student added successfully";
+    // Validate and sanitize input (you should add more validation as needed)
+    $student_name = mysqli_real_escape_string($conn, $student_name);
+
+    // Check if the student exists in the users table and is a student
+    $check_student_sql = "SELECT id FROM users WHERE name='$student_name' AND role='student'";
+    $check_student_result = $conn->query($check_student_sql);
+
+    if ($check_student_result->num_rows > 0) {
+        // Student found, retrieve student ID
+        $student_data = $check_student_result->fetch_assoc();
+        $student_id = $student_data['id'];
+
+        // Insert class record into the database
+        $insert_sql = "INSERT INTO class_records (subject_id, teacher_id, student_id, student_name) 
+                       VALUES ('$subject_id', '{$_SESSION['user_id']}', '$student_id', '$student_name')";
+        if ($conn->query($insert_sql) === TRUE) {
+            $success_message = "Student added successfully";
+        } else {
+            $error_message = "Error adding student: " . $conn->error;
+        }
     } else {
-        $error_message = "Error adding student: " . $conn->error;
+        $error_message = "Student '$student_name' not found or is not registered as a student.";
     }
 }
 
@@ -51,17 +64,16 @@ $class_records_result = $conn->query($class_records_sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subject Detail</title>
-    <link rel="stylesheet" href="styles.css">
-
-      <style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
         }
-        .container {
-            width: 80%;
+        .container-table {
+            width: 95%;
             margin: 20px auto;
             background: #fff;
             padding: 20px;
@@ -137,7 +149,8 @@ $class_records_result = $conn->query($class_records_sql);
     </style>
 </head>
 <body>
-    <div class="container">
+<a href="teacher_dashboard.php" class="btn btn-secondary my-2 mx-2">Back to Classes</a>
+    <div class="container-table">
         <h1>Subject Detail: <?php echo htmlspecialchars($subject['subject']); ?></h1>
 
         <!-- Display success or error messages -->
@@ -146,12 +159,8 @@ $class_records_result = $conn->query($class_records_sql);
 
         <!-- Form to add a student -->
         <form action="subject_detail.php?id=<?php echo $subject_id; ?>" method="POST">
-            <label for="last_name">Last Name:</label>
-            <input type="text" id="last_name" name="last_name" required>
-            <label for="first_name">First Name:</label>
-            <input type="text" id="first_name" name="first_name" required>
-            <label for="middle_initial">Middle Initial:</label>
-            <input type="text" id="middle_initial" name="middle_initial" maxlength="1" required>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" class="w-75" required autocomplete="off">
             <button type="submit">Add Student</button>
         </form>
 
@@ -189,7 +198,7 @@ $class_records_result = $conn->query($class_records_sql);
             }
             ?>
         </table>
-        <a href="view_classes.php">Back to Classes</a>
+      
     </div>
 </body>
 </html>

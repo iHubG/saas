@@ -8,8 +8,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $sql = "SELECT * FROM users WHERE username='$username'";
-    $result = $conn->query($sql);
+    $sql = "SELECT * FROM users WHERE username=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
@@ -19,12 +22,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['username'] = $row['username'];
             $_SESSION['role'] = $row['role']; // Store user role in session
 
-            if ($row['role'] == 'admin') {
-                header("Location: admin_dashboard.php");
-            } elseif ($row['role'] == 'teacher') {
-                header("Location: teacher_dashboard.php");
-            } else {
-                header("Location: dashboard.php");
+            $roleName = ucfirst($row['role']); 
+            $logData = "$roleName {$row['name']} logged in."; 
+            $stmt = $conn->prepare("INSERT INTO user_logs (log_data) VALUES (?)");
+            $stmt->bind_param("s", $logData); 
+            $stmt->execute(); 
+
+            switch ($row['role']) {
+                case 'admin':
+                    header("Location: admin_dashboard.php");
+                    break;
+                case 'instructor':
+                    header("Location: teacher_dashboard.php");
+                    break;
+                case 'student':
+                    header("Location: student_dashboard.php");
+                    break;
+                default:
+                    header("Location: dashboard.php");
+                    break;
             }
             exit();
         } else {
@@ -34,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error_message = "No user found.";
     }
 }
+
 ?>
 
 <!DOCTYPE html>

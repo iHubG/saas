@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php elseif (isset($success_message)): ?>
             <div class="alert alert-success"><?php echo $success_message; ?></div>
         <?php endif; ?>
-        <form action="" method="POST">
+        <form action="admin_settings.php" method="POST">
             <div class="mb-3">
                 <label for="name" class="form-label">Name:</label>
                 <input type="text" id="name" name="name" class="form-control" value="<?php echo htmlspecialchars($admin['name'] ?? '', ENT_QUOTES); ?>" required>
