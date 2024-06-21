@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `classes` (
   PRIMARY KEY (`id`),
   KEY `teacher_id` (`teacher_id`),
   CONSTRAINT `teacher_id` FOREIGN KEY (`teacher_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -42,12 +42,20 @@ CREATE TABLE IF NOT EXISTS `class_records` (
   `teacher_id` int DEFAULT NULL,
   `student_id` int DEFAULT NULL,
   `student_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `attendance` int DEFAULT NULL,
+  `quiz` int DEFAULT NULL,
+  `project` int DEFAULT NULL,
+  `recitation` int DEFAULT NULL,
+  `behavior` int DEFAULT NULL,
+  `prelim_exam` int DEFAULT NULL,
+  `midterm_exam` int DEFAULT NULL,
+  `final_exam` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `subject_id` (`subject_id`),
   KEY `student_id` (`student_id`),
   CONSTRAINT `student_id` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`),
   CONSTRAINT `subject_id` FOREIGN KEY (`subject_id`) REFERENCES `classes` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -70,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `user_logs` (
   `log_data` text COLLATE utf8mb4_unicode_ci,
   `timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
