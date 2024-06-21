@@ -1,6 +1,8 @@
 <?php
 include 'db.php';
 
+session_start();
+
 $error_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -74,6 +76,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg bg-dark-subtle">
+        <div class="container-fluid">
+            <a class="navbar-brand d-none-lg d-flex" href="admin_dashboard.php">Admin</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin_dashboard.php">Admin Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="view_instructors.php">Registered Instructors</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin_settings.php">Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="user_logs.php">User Logs</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center justify-content-between">
+                    <p class="mb-0">Hello, <?php echo $_SESSION['username']; ?>!</p>                 
+                    <a href="logout.php" class="btn btn-danger ms-3">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
         <h1 class="mb-4 text-center">Instructor Registration</h1>
         <?php
@@ -109,7 +140,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <button type="submit" class="btn btn-primary">Register</button>
             </div>
         </form>
-        <a href="view_instructors.php" class="btn btn-secondary">Back to Registered Instructors</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

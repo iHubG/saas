@@ -37,6 +37,9 @@ $result_logs = $conn->query($sql_logs);
                         <a class="nav-link" href="view_instructors.php">Registered Instructors</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="view_students.php">Registered Students</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="admin_settings.php">Settings</a>
                     </li>
                     <li class="nav-item">

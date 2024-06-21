@@ -70,6 +70,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg bg-dark-subtle">
+        <div class="container-fluid">
+            <a class="navbar-brand d-none-lg d-flex" href="admin_dashboard.php">Admin</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin_dashboard.php">Admin Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="view_instructors.php">Registered Instructors</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="view_students.php">Registered Students</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin_settings.php">Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="user_logs.php">User Logs</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center justify-content-between">
+                    <p class="mb-0">Hello, <?php echo $_SESSION['username']; ?>!</p>                 
+                    <a href="logout.php" class="btn btn-danger ms-3">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <div class="container mt-5">
         <h1 class="mb-4">Admin Settings</h1>
         <?php if (isset($error_message)): ?>
@@ -113,7 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <button type="submit" class="btn btn-primary">Update</button>
         </form>
-        <a href="admin_dashboard.php" class="mt-3 btn btn-secondary">Back to Dashboard</a>
 
     </div>
 

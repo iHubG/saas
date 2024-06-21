@@ -43,13 +43,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $subject_code = $_POST['subject_code'];
         $section = $_POST['section'];
         $semester = $_POST['semester'];
+        $subject_type = $_POST['subject_type'];
 
         // Validate input fields
-        if (!empty($subject) && !empty($subject_code) && !empty($section) && !empty($semester)) {
+        if (!empty($subject) && !empty($subject_code) && !empty($section) && !empty($semester) && !empty($subject_type)) {
             // Insert subject into database
-            $insert_sql = "INSERT INTO classes (subject, subject_code, section, semester, teacher_id) VALUES (?, ?, ?, ?, ?)";
+            $insert_sql = "INSERT INTO classes (subject, subject_code, section, semester, subject_type, teacher_id) VALUES (?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($insert_sql);
-            $stmt->bind_param("ssssi", $subject, $subject_code, $section, $semester, $instructor_id);
+            $stmt->bind_param("sssssi", $subject, $subject_code, $section, $semester, $subject_type, $instructor_id);
 
             if ($stmt->execute()) {
                 $success_message = "Subject added successfully";
@@ -65,13 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $subject_code = $_POST['subject_code'];
         $section = $_POST['section'];
         $semester = $_POST['semester'];
+        $subject_type = $_POST['subject_type'];
 
         // Validate input fields
-        if (!empty($subject) && !empty($subject_code) && !empty($section) && !empty($semester)) {
+        if (!empty($subject) && !empty($subject_code) && !empty($section) && !empty($semester) && !empty($subject_type)) {
             // Update subject in database
-            $update_sql = "UPDATE classes SET subject=?, subject_code=?, section=?, semester=? WHERE id=? AND teacher_id=?";
+            $update_sql = "UPDATE classes SET subject=?, subject_code=?, section=?, semester=?, subject_type=? WHERE id=? AND teacher_id=?";
             $stmt = $conn->prepare($update_sql);
-            $stmt->bind_param("ssssii", $subject, $subject_code, $section, $semester, $subject_id, $instructor_id);
+            $stmt->bind_param("sssssii", $subject, $subject_code, $section, $semester, $subject_type, $subject_id, $instructor_id);
 
             if ($stmt->execute()) {
                 $success_message = "Subject updated successfully";
@@ -97,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     } elseif ($action === 'edit_subject') {
         $subject_id = $_POST['edit_subject_id'];
         // Fetch subject details to populate edit form
-        $fetch_sql = "SELECT subject, subject_code, section, semester FROM classes WHERE id=? AND teacher_id=?";
+        $fetch_sql = "SELECT subject, subject_code, section, semester, subject_type FROM classes WHERE id=? AND teacher_id=?";
         $stmt = $conn->prepare($fetch_sql);
         $stmt->bind_param("ii", $subject_id, $instructor_id);
         $stmt->execute();
@@ -110,7 +112,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 'subject' => $row['subject'],
                 'subject_code' => $row['subject_code'],
                 'section' => $row['section'],
-                'semester' => $row['semester']
+                'semester' => $row['semester'],
+                'subject_type' => $row['subject_type']
+
             ];
         } else {
             $error_message = "Subject not found";
@@ -119,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 
 // Fetch subjects and related information taught by the instructor
-$sql_subjects = "SELECT id, subject, subject_code, section, semester FROM classes WHERE teacher_id=?";
+$sql_subjects = "SELECT id, subject, subject_code, section, semester, subject_type FROM classes WHERE teacher_id=?";
 $stmt = $conn->prepare($sql_subjects);
 $stmt->bind_param("i", $instructor_id);
 $stmt->execute();
@@ -142,7 +146,6 @@ if ($result_subjects->num_rows > 0) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
         .container {
-            max-width: 800px;
             margin-top: 50px;
         }
         .add-subject, .edit-subject {
@@ -157,7 +160,37 @@ if ($result_subjects->num_rows > 0) {
     </style>
 </head>
 <body>
-<a href="view_instructors.php" class="btn btn-secondary my-2 mx-2">Back to Instructors</a>
+<nav class="navbar navbar-expand-lg bg-dark-subtle">
+        <div class="container-fluid">
+            <a class="navbar-brand d-none-lg d-flex" href="admin_dashboard.php">Admin</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin_dashboard.php">Admin Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="view_instructors.php">Registered Instructors</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="view_students.php">Registered Students</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin_settings.php">Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="user_logs.php">User Logs</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center justify-content-between">
+                    <p class="mb-0">Hello, <?php echo $_SESSION['username']; ?>!</p>                 
+                    <a href="logout.php" class="btn btn-danger ms-3">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
     <div class="container">
         <h1 class="mt-0 mb-4">Manage Classes for <?php echo htmlspecialchars($instructor_name); ?></h1>
 
@@ -185,6 +218,9 @@ if ($result_subjects->num_rows > 0) {
                 <div class="mb-3">
                     <input type="text" class="form-control" name="semester" placeholder="Semester" required autocomplete="off">
                 </div>
+                <div class="mb-3">
+                    <input type="text" class="form-control" name="subject_type" placeholder="Subject Type 'major' or 'minor'" required autocomplete="off">
+                </div>
                 <button type="submit" class="btn btn-primary">Add Subject</button>
             </form>
         </div>
@@ -208,6 +244,9 @@ if ($result_subjects->num_rows > 0) {
                     <div class="mb-3">
                         <input type="text" class="form-control" name="semester" placeholder="Semester" value="<?php echo htmlspecialchars($edit_subject['semester']); ?>" required autocomplete="off">
                     </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="subject_type" placeholder="Subject Type 'major' or 'minor'" value="<?php echo htmlspecialchars($edit_subject['subject_type']); ?>" required autocomplete="off">
+                    </div>
                     <button type="submit" class="btn btn-primary">Update Subject</button>
                 </form>
             </div>
@@ -223,12 +262,13 @@ if ($result_subjects->num_rows > 0) {
                         Subject Code: <?php echo htmlspecialchars($subject['subject_code']); ?><br>
                         Section: <?php echo htmlspecialchars($subject['section']); ?><br>
                         Semester: <?php echo htmlspecialchars($subject['semester']); ?><br>
+                        Subject Type: <?php echo htmlspecialchars($subject['subject_type']); ?><br>
                         <form action="" method="POST" class="d-inline">
                             <input type="hidden" name="action" value="edit_subject">
                             <input type="hidden" name="edit_subject_id" value="<?php echo $subject['id']; ?>">
-                            <button type="submit" class="btn btn-sm btn-primary">Edit</button>
+                            <button type="submit" class="btn btn-sm btn-primary mt-1">Edit</button>
                         </form>
-                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteSubjectModal<?php echo $subject['id']; ?>">
+                        <button type="button" class="btn btn-sm btn-danger mt-1" data-bs-toggle="modal" data-bs-target="#deleteSubjectModal<?php echo $subject['id']; ?>">
                             Delete
                         </button>
                         <!-- Delete Subject Modal -->

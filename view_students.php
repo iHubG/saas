@@ -8,54 +8,50 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// Fetch list of instructors
-$sql = "SELECT * FROM users WHERE role='instructor'";
+// Fetch list of students
+$sql = "SELECT * FROM users WHERE role='student'";
 $result = $conn->query($sql);
 
 // Handle delete operation
-if (isset($_POST['delete_instructor'])) {
-    $instructor_id = $_POST['instructor_id'];
+if (isset($_POST['delete_student'])) {
+    $student_id = $_POST['student_id'];
 
-    // Delete instructor from database
+    // Delete student from database
     $delete_sql = "DELETE FROM users WHERE id=?";
     $stmt = $conn->prepare($delete_sql);
-    $stmt->bind_param("i", $instructor_id);
+    $stmt->bind_param("i", $student_id);
 
     if ($stmt->execute()) {
-        // Also delete related classes taught by the instructor
-        $delete_classes_sql = "DELETE FROM classes WHERE teacher_id=?";
-        $stmt_classes = $conn->prepare($delete_classes_sql);
-        $stmt_classes->bind_param("i", $instructor_id);
-        $stmt_classes->execute();
+        // Also delete related records (if any)
+        // Example: You might want to delete records from other related tables
 
-        $success_message = "Instructor deleted successfully";
+        $success_message = "Student deleted successfully";
         header("Location: {$_SERVER['PHP_SELF']}");
         exit();
     } else {
-        $error_message = "Error deleting instructor: " . $conn->error;
+        $error_message = "Error deleting student: " . $conn->error;
     }
 }
 
 // Handle update operation
-if (isset($_POST['update_instructor'])) {
-    $instructor_id = $_POST['instructor_id'];
-    $instructor_name = $_POST['instructor_name'];
-    $instructor_email = $_POST['instructor_email'];
+if (isset($_POST['update_student'])) {
+    $student_id = $_POST['student_id'];
+    $student_name = $_POST['student_name'];
+    $student_email = $_POST['student_email'];
 
-    // Update instructor information in database
+    // Update student information in database
     $update_sql = "UPDATE users SET name=?, email=? WHERE id=?";
     $stmt = $conn->prepare($update_sql);
-    $stmt->bind_param("ssi", $instructor_name, $instructor_email, $instructor_id);
+    $stmt->bind_param("ssi", $student_name, $student_email, $student_id);
 
     if ($stmt->execute()) {
-        $success_message = "Instructor updated successfully";
+        $success_message = "Student updated successfully";
         header("Location: {$_SERVER['PHP_SELF']}");
         exit();
     } else {
-        $error_message = "Error updating instructor: " . $conn->error;
+        $error_message = "Error updating student: " . $conn->error;
     }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -63,10 +59,8 @@ if (isset($_POST['update_instructor'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registered Instructors</title>
+    <title>Registered Students</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
     <nav class="navbar navbar-expand-lg bg-dark-subtle">
@@ -102,7 +96,7 @@ if (isset($_POST['update_instructor'])) {
     </nav>
 
     <div class="container">
-        <h1 class="my-4">Registered Instructors</h1>
+        <h1 class="my-4">Registered Students</h1>
 
         <?php if (isset($error_message)) : ?>
             <div class="alert alert-danger" role="alert">
@@ -131,35 +125,32 @@ if (isset($_POST['update_instructor'])) {
                             <tr>
                                 <td>
                                     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
-                                        <input type="hidden" name="instructor_id" value="<?php echo $row['id']; ?>">
-                                        <input type="text" name="instructor_name" value="<?php echo htmlspecialchars($row['name']); ?>" class="form-control" required autocomplete="off">
+                                        <input type="hidden" name="student_id" value="<?php echo $row['id']; ?>">
+                                        <input type="text" name="student_name" value="<?php echo htmlspecialchars($row['name']); ?>" class="form-control" required autocomplete="off">
                                 </td>
                                 <td>
-                                    <input type="email" name="instructor_email" value="<?php echo htmlspecialchars($row['email']); ?>" class="form-control" required autocomplete="off">
+                                    <input type="email" name="student_email" value="<?php echo htmlspecialchars($row['email']); ?>" class="form-control" required autocomplete="off">
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <button type="submit" name="update_instructor" class="btn btn-success btn-sm">Update</button>
-                                        <a href="view_classes_admin.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm ms-1">Manage</a>
+                                        <button type="submit" name="update_student" class="btn btn-success btn-sm">Update</button>
                                     </div>
                                     </form>
                                     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST" class="ms-1">
-                                        <input type="hidden" name="instructor_id" value="<?php echo $row['id']; ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm mt-1" name="delete_instructor">Delete</button>
+                                        <input type="hidden" name="student_id" value="<?php echo $row['id']; ?>">
+                                        <button type="submit" class="btn btn-danger btn-sm mt-1" name="delete_student">Delete</button>
                                     </form>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else : ?>
                         <tr>
-                            <td colspan="3">No instructors found</td>
+                            <td colspan="3">No students found</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
-
-        <a href="instructor_register.php" class="btn btn-primary mt-3">Register Instructor</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
