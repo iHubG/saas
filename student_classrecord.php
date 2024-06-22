@@ -120,6 +120,7 @@ $class_records_result = $conn->query($class_records_sql);
         if ($result_totals->num_rows > 0) {
             $totals = $result_totals->fetch_assoc();
             $attendance_total = $totals['attendance_total'];
+            $homework_total = $totals['homework_total'];
             $quiz_total = $totals['quiz_total'];
             $project_total = $totals['project_total'];
             $recitation_total = $totals['recitation_total'];
@@ -130,6 +131,7 @@ $class_records_result = $conn->query($class_records_sql);
         } else {
             // Set default values if no records found (or handle accordingly)
             $attendance_total = 0;
+            $homework_total = 0;
             $quiz_total = 0;
             $project_total = 0;
             $recitation_total = 0;
@@ -150,6 +152,7 @@ $class_records_result = $conn->query($class_records_sql);
             <tr>
                 <th>Student Name</th>
                 <th>Attendance</th>
+                <th>Homework</th>
                 <th>Quiz</th>
                 <th>Project</th>
                 <th>Recitation</th>
@@ -166,6 +169,7 @@ $class_records_result = $conn->query($class_records_sql);
                     echo "<tr>";
                     echo "<td>" . htmlspecialchars($record['student_name'] ?? 'N/A') . "</td>";
                     echo "<td>" . (isset($record['attendance']) ? htmlspecialchars($record['attendance']) : 'N/A') . '/' . $attendance_total; "</td>";
+                    echo "<td>" . (isset($record['homework']) ? htmlspecialchars($record['homework']) : 'N/A') . '/' . $homework_total; "</td>";
                     echo "<td>" . (isset($record['quiz']) ? htmlspecialchars($record['quiz']) : 'N/A') . '/' . $quiz_total; "</td>";
                     echo "<td>" . (isset($record['project']) ? htmlspecialchars($record['project']) : 'N/A') . '/' . $project_total; "</td>";
                     echo "<td>" . (isset($record['recitation']) ? htmlspecialchars($record['recitation']) : 'N/A') . '/' . $recitation_total; "</td>";

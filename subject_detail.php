@@ -68,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (isset($_POST['updateTotalScores'])){
          // Validate and sanitize inputs (assuming data is numeric and safe)
         $attendance_total = intval($_POST['attendance_total']);
+        $homework_total = intval($_POST['homework_total']);
         $quiz_total = intval($_POST['quiz_total']);
         $project_total = intval($_POST['project_total']);
         $recitation_total = intval($_POST['recitation_total']);
@@ -79,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Prepare SQL update statement
         $update_sql = "UPDATE class_records SET 
             attendance_total='$attendance_total', 
+            homework_total='$homework_total', 
             quiz_total='$quiz_total', 
             project_total='$project_total', 
             recitation_total='$recitation_total', 
@@ -97,7 +99,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['update_percentages']))  {
       // Validate and sanitize inputs (assuming data is numeric and safe)
-        $attendance_percent = floatval($_POST['attendance_percent']) / 100.0; // Convert percentage to decimal
+        $attendance_percent = floatval($_POST['attendance_percent']) / 100.0;
+        $homework_percent = floatval($_POST['homework_percent']) / 100.0;
         $quiz_percent = floatval($_POST['quiz_percent']) / 100.0;
         $project_percent = floatval($_POST['project_percent']) / 100.0;
         $recitation_percent = floatval($_POST['recitation_percent']) / 100.0;
@@ -109,6 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Prepare SQL update statement
         $update_sql = "UPDATE class_records SET 
             attendance_percent='$attendance_percent', 
+            homework_percent='$homework_percent', 
             quiz_percent='$quiz_percent', 
             project_percent='$project_percent', 
             recitation_percent='$recitation_percent', 
@@ -128,6 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Retrieve inputs
         $student_id = isset($_POST['student_id']) ? $_POST['student_id'] : '';
         $attendance = isset($_POST['attendance']) ? (int) $_POST['attendance'] : 0;
+        $homework = isset($_POST['homework']) ? (int) $_POST['homework'] : 0;
         $quiz = isset($_POST['quiz']) ? (int) $_POST['quiz'] : 0;
         $project = isset($_POST['project']) ? (int) $_POST['project'] : 0;
         $recitation = isset($_POST['recitation']) ? (int) $_POST['recitation'] : 0;
@@ -137,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $final_exam = isset($_POST['final_exam']) ? (int) $_POST['final_exam'] : 0;
 
         // Fetch existing scores to add to new values
-        $fetch_scores_sql = "SELECT attendance, quiz, project, recitation, behavior, prelim_exam, midterm_exam, final_exam 
+        $fetch_scores_sql = "SELECT attendance, homework, quiz, project, recitation, behavior, prelim_exam, midterm_exam, final_exam 
         FROM class_records 
         WHERE subject_id='$subject_id' AND teacher_id='{$_SESSION['user_id']}' AND student_id='$student_id'";
         $fetch_scores_result = $conn->query($fetch_scores_sql);
@@ -147,6 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Calculate new scores by adding only the difference from existing scores
         $attendance = (int) $existing_scores['attendance'] + $attendance;
+        $homework = (int) $existing_scores['homework'] + $homework;
         $quiz = (int) $existing_scores['quiz'] + $quiz;
         $project = (int) $existing_scores['project'] + $project;
         $recitation = (int) $existing_scores['recitation'] + $recitation;
@@ -158,8 +164,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
         // Fetch score totals and percentages from the database
-        $query = "SELECT attendance_total, quiz_total, project_total, recitation_total, behavior_total, prelim_exam_total, midterm_exam_total, final_exam_total,
-                            attendance_percent, quiz_percent, project_percent, recitation_percent, behavior_percent, prelim_exam_percent, midterm_exam_percent, final_exam_percent 
+        $query = "SELECT attendance_total, homework_total, quiz_total, project_total, recitation_total, behavior_total, prelim_exam_total, midterm_exam_total, final_exam_total,
+                            attendance_percent, homework_percent, quiz_percent, project_percent, recitation_percent, behavior_percent, prelim_exam_percent, midterm_exam_percent, final_exam_percent 
                     FROM class_records 
                     WHERE subject_id = ? AND teacher_id = ?";
         $stmt = $conn->prepare($query);
@@ -173,6 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Retrieve percentages and calculate the total score
             $weights = [
                 "attendance" => $scoreDetails['attendance_percent'],
+                "homework" => $scoreDetails['homework_percent'],
                 "quiz" => $scoreDetails['quiz_percent'],
                 "project" => $scoreDetails['project_percent'],
                 "recitation" => $scoreDetails['recitation_percent'],
@@ -184,6 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Calculate total score
             $totalScore = ($attendance / $scoreDetails['attendance_total'] * 100 * $weights["attendance"]) +
+                        ($homework / $scoreDetails['homework_total'] * 100 * $weights["homework"]) +
                         ($quiz / $scoreDetails['quiz_total'] * 100 * $weights["quiz"]) +
                         ($project / $scoreDetails['project_total'] * 100 * $weights["project"]) +
                         ($recitation / $scoreDetails['recitation_total'] * 100 * $weights["recitation"]) +
@@ -244,6 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Update scores and final grade in the database for the existing student
                 $update_sql = "UPDATE class_records 
                                 SET attendance=?, 
+                                    homework=?, 
                                     quiz=?, 
                                     project=?, 
                                     recitation=?, 
@@ -256,7 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 WHERE subject_id=? AND teacher_id=? AND student_id=?";
                 
                 $stmt = $conn->prepare($update_sql);
-                $stmt->bind_param("iiiiiiiidsiii", $attendance, $quiz, $project, $recitation, $behavior, $prelim_exam, $midterm_exam, $final_exam, $finalGrade, $remarks, $subject_id, $_SESSION['user_id'], $student_id);
+                $stmt->bind_param("iiiiiiiiidsiii", $attendance, $homework, $quiz, $project, $recitation, $behavior, $prelim_exam, $midterm_exam, $final_exam, $finalGrade, $remarks, $subject_id, $_SESSION['user_id'], $student_id);
                 
                 if ($stmt->execute()) {
                     $success_message = "Scores updated successfully";
@@ -429,6 +438,7 @@ $class_records_result = $conn->query($class_records_sql);
             if ($result_totals->num_rows > 0) {
                 $totals = $result_totals->fetch_assoc();
                 $attendance_total = $totals['attendance_total'];
+                $homework_total = $totals['homework_total'];
                 $quiz_total = $totals['quiz_total'];
                 $project_total = $totals['project_total'];
                 $recitation_total = $totals['recitation_total'];
@@ -439,6 +449,7 @@ $class_records_result = $conn->query($class_records_sql);
             } else {
                 // Set default values if no records found (or handle accordingly)
                 $attendance_total = 0;
+                $homework_total = 0;
                 $quiz_total = 0;
                 $project_total = 0;
                 $recitation_total = 0;
@@ -465,6 +476,10 @@ $class_records_result = $conn->query($class_records_sql);
                         <div class='mb-3'>
                             <label for='attendance_total'>Attendance</label>
                             <input type='number' class='form-control' id='attendance_total' name='attendance_total' value='<?php echo $attendance_total; ?>' required>
+                        </div>
+                        <div class='mb-3'>
+                            <label for='homework_total'>Homework</label>
+                            <input type='number' class='form-control' id='homework_total' name='homework_total' value='<?php echo $homework_total; ?>' required>
                         </div>
                         <div class='mb-3'>
                             <label for='quiz_total'>Quiz</label>
@@ -512,7 +527,8 @@ $class_records_result = $conn->query($class_records_sql);
 
             if ($result_percentages->num_rows > 0) {
                 $percentages = $result_percentages->fetch_assoc();
-                $attendance_percent = $percentages['attendance_percent'] * 100; // Convert decimal to percentage
+                $attendance_percent = $percentages['attendance_percent'] * 100;
+                $homework_percent = $percentages['homework_percent'] * 100;
                 $quiz_percent = $percentages['quiz_percent'] * 100;
                 $project_percent = $percentages['project_percent'] * 100;
                 $recitation_percent = $percentages['recitation_percent'] * 100;
@@ -523,6 +539,7 @@ $class_records_result = $conn->query($class_records_sql);
             } else {
                 // Set default values if no records found (or handle accordingly)
                 $attendance_percent = 0;
+                $homework_percent = 0;
                 $quiz_percent = 0;
                 $project_percent = 0;
                 $recitation_percent = 0;
@@ -549,6 +566,10 @@ $class_records_result = $conn->query($class_records_sql);
                             <div class='mb-3'>
                                 <label for='attendance_percent'>Attendance (%)</label>
                                 <input type='number' step='0.001' class='form-control' id='attendance_percent' name='attendance_percent' value='<?php echo $attendance_percent; ?>' required>
+                            </div>
+                            <div class='mb-3'>
+                                <label for='homework_percent'>Homework (%)</label>
+                                <input type='number' step='0.001' class='form-control' id='homework_percent' name='homework_percent' value='<?php echo $homework_percent; ?>' required>
                             </div>
                             <div class='mb-3'>
                                 <label for='quiz_percent'>Quiz (%)</label>
@@ -595,6 +616,7 @@ $class_records_result = $conn->query($class_records_sql);
                 <tr>
                     <th>Student Name</th>
                     <th>Attendance <?php echo $attendance_percent; ?>%</th>
+                    <th>Homework <?php echo $homework_percent; ?>%</th>
                     <th>Quiz <?php echo $quiz_percent; ?>%</th>
                     <th>Project <?php echo $project_percent; ?>%</th>
                     <th>Recitation <?php echo $recitation_percent; ?>%</th>
@@ -614,6 +636,7 @@ $class_records_result = $conn->query($class_records_sql);
                         echo "<tr>";
                         echo "<td>" . htmlspecialchars($record['student_name'] ?? 'N/A') . "</td>";
                         echo "<td>" . (isset($record['attendance']) ? htmlspecialchars($record['attendance']) : 'N/A') . '/' . $attendance_total; "</td>";
+                        echo "<td>" . (isset($record['homework']) ? htmlspecialchars($record['homework']) : 'N/A') . '/' . $homework_total; "</td>";
                         echo "<td>" . (isset($record['quiz']) ? htmlspecialchars($record['quiz']) : 'N/A') . '/' . $quiz_total; "</td>";
                         echo "<td>" . (isset($record['project']) ? htmlspecialchars($record['project']) : 'N/A') . '/' . $project_total; "</td>";
                         echo "<td>" . (isset($record['recitation']) ? htmlspecialchars($record['recitation']) : 'N/A') . '/' . $recitation_total; "</td>";
@@ -646,6 +669,10 @@ $class_records_result = $conn->query($class_records_sql);
                         echo "<div class='mb-3'>";
                         echo "<label for='attendance'>Attendance</label>";
                         echo "<input type='number' class='form-control' id='attendance' name='attendance'>";
+                        echo "</div>";
+                        echo "<div class='mb-3'>";
+                        echo "<label for='homework'>Homework</label>";
+                        echo "<input type='number' class='form-control' id='homework' name='homework'>";
                         echo "</div>";
                         echo "<div class='mb-3'>";
                         echo "<label for='quiz'>Quiz</label>";
