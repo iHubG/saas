@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `classes` (
   PRIMARY KEY (`id`),
   KEY `teacher_id` (`teacher_id`),
   CONSTRAINT `teacher_id` FOREIGN KEY (`teacher_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -50,12 +50,30 @@ CREATE TABLE IF NOT EXISTS `class_records` (
   `prelim_exam` int DEFAULT NULL,
   `midterm_exam` int DEFAULT NULL,
   `final_exam` int DEFAULT NULL,
+  `final_grade` decimal(20,2) DEFAULT NULL,
+  `remarks` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `attendance_total` int DEFAULT NULL,
+  `quiz_total` int DEFAULT NULL,
+  `project_total` int DEFAULT NULL,
+  `recitation_total` int DEFAULT NULL,
+  `behavior_total` int DEFAULT NULL,
+  `prelim_exam_total` int DEFAULT NULL,
+  `midterm_exam_total` int DEFAULT NULL,
+  `final_exam_total` int DEFAULT NULL,
+  `attendance_percent` decimal(20,3) DEFAULT NULL,
+  `quiz_percent` decimal(20,3) DEFAULT NULL,
+  `project_percent` decimal(20,3) DEFAULT NULL,
+  `recitation_percent` decimal(20,3) DEFAULT NULL,
+  `behavior_percent` decimal(20,3) DEFAULT NULL,
+  `prelim_exam_percent` decimal(20,3) DEFAULT NULL,
+  `midterm_exam_percent` decimal(20,3) DEFAULT NULL,
+  `final_exam_percent` decimal(20,3) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `subject_id` (`subject_id`),
   KEY `student_id` (`student_id`),
   CONSTRAINT `student_id` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`),
   CONSTRAINT `subject_id` FOREIGN KEY (`subject_id`) REFERENCES `classes` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -68,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -78,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `user_logs` (
   `log_data` text COLLATE utf8mb4_unicode_ci,
   `timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 

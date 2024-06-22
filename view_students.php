@@ -12,26 +12,42 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 $sql = "SELECT * FROM users WHERE role='student'";
 $result = $conn->query($sql);
 
-// Handle delete operation
+/// Handle delete operation
 if (isset($_POST['delete_student'])) {
     $student_id = $_POST['student_id'];
 
-    // Delete student from database
-    $delete_sql = "DELETE FROM users WHERE id=?";
-    $stmt = $conn->prepare($delete_sql);
-    $stmt->bind_param("i", $student_id);
+    // Start a transaction to ensure atomicity
+    $conn->begin_transaction();
 
-    if ($stmt->execute()) {
-        // Also delete related records (if any)
-        // Example: You might want to delete records from other related tables
+    try {
+        // Delete related records from class_records table
+        $delete_records_sql = "DELETE FROM class_records WHERE student_id=?";
+        $stmt_records = $conn->prepare($delete_records_sql);
+        $stmt_records->bind_param("i", $student_id);
+        
+        if (!$stmt_records->execute()) {
+            throw new Exception("Error deleting related records: " . $stmt_records->error);
+        }
 
-        $success_message = "Student deleted successfully";
-        header("Location: {$_SERVER['PHP_SELF']}");
-        exit();
-    } else {
-        $error_message = "Error deleting student: " . $conn->error;
+        // Now delete the student from the users table
+        $delete_sql = "DELETE FROM users WHERE id=?";
+        $stmt = $conn->prepare($delete_sql);
+        $stmt->bind_param("i", $student_id);
+
+        if ($stmt->execute()) {
+            $conn->commit(); // Commit the transaction
+            $success_message = "Student deleted successfully";
+            header("Location: {$_SERVER['PHP_SELF']}");
+            exit();
+        } else {
+            throw new Exception("Error deleting student: " . $stmt->error);
+        }
+    } catch (Exception $e) {
+        $conn->rollback(); // Rollback the transaction on error
+        $error_message = "Transaction error: " . $e->getMessage();
     }
 }
+
 
 // Handle update operation
 if (isset($_POST['update_student'])) {

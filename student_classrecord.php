@@ -112,6 +112,35 @@ $class_records_result = $conn->query($class_records_sql);
         </div>
     </nav>
 
+    <?php 
+        // Fetch current total score values from class_records table
+        $sql_totals = "SELECT * FROM class_records WHERE subject_id='$subject_id'";
+        $result_totals = $conn->query($sql_totals);
+
+        if ($result_totals->num_rows > 0) {
+            $totals = $result_totals->fetch_assoc();
+            $attendance_total = $totals['attendance_total'];
+            $quiz_total = $totals['quiz_total'];
+            $project_total = $totals['project_total'];
+            $recitation_total = $totals['recitation_total'];
+            $behavior_total = $totals['behavior_total'];
+            $prelim_exam_total = $totals['prelim_exam_total'];
+            $midterm_exam_total = $totals['midterm_exam_total']; // Corrected typo in field name
+            $final_exam_total = $totals['final_exam_total'];
+        } else {
+            // Set default values if no records found (or handle accordingly)
+            $attendance_total = 0;
+            $quiz_total = 0;
+            $project_total = 0;
+            $recitation_total = 0;
+            $behavior_total = 0;
+            $prelim_exam_total = 0;
+            $midterm_exam_total = 0;
+            $final_exam_total = 0;
+        }
+
+    ?>
+
     <div class="container-table">
         <h1>Subject: <?php echo htmlspecialchars($subject['subject']); ?> Class Record</h1>
 
@@ -135,17 +164,17 @@ $class_records_result = $conn->query($class_records_sql);
             if ($class_records_result->num_rows > 0) {
                 while ($record = $class_records_result->fetch_assoc()) {
                     echo "<tr>";
-                    echo "<td>" . htmlspecialchars($record['student_name']) . "</td>";
-                    echo "<td>" . (isset($record['attendance']) ? htmlspecialchars($record['attendance']) : 'N/A') . "</td>";
-                    echo "<td>" . (isset($record['quiz']) ? htmlspecialchars($record['quiz']) : 'N/A') . "</td>";
-                    echo "<td>" . (isset($record['project']) ? htmlspecialchars($record['project']) : 'N/A') . "</td>";
-                    echo "<td>" . (isset($record['recitation']) ? htmlspecialchars($record['recitation']) : 'N/A') . "</td>";
-                    echo "<td>" . (isset($record['behavior']) ? htmlspecialchars($record['behavior']) : 'N/A') . "</td>";
-                    echo "<td>" . (isset($record['prelim_exam']) ? htmlspecialchars($record['prelim_exam']) : 'N/A') . "</td>";
-                    echo "<td>" . (isset($record['midterm_exam']) ? htmlspecialchars($record['midterm_exam']) : 'N/A') . "</td>";
-                    echo "<td>" . (isset($record['final_exam']) ? htmlspecialchars($record['final_exam']) : 'N/A') . "</td>";
+                    echo "<td>" . htmlspecialchars($record['student_name'] ?? 'N/A') . "</td>";
+                    echo "<td>" . (isset($record['attendance']) ? htmlspecialchars($record['attendance']) : 'N/A') . '/' . $attendance_total; "</td>";
+                    echo "<td>" . (isset($record['quiz']) ? htmlspecialchars($record['quiz']) : 'N/A') . '/' . $quiz_total; "</td>";
+                    echo "<td>" . (isset($record['project']) ? htmlspecialchars($record['project']) : 'N/A') . '/' . $project_total; "</td>";
+                    echo "<td>" . (isset($record['recitation']) ? htmlspecialchars($record['recitation']) : 'N/A') . '/' . $recitation_total; "</td>";
+                    echo "<td>" . (isset($record['behavior']) ? htmlspecialchars($record['behavior']) : 'N/A') . '/' . $behavior_total; "</td>";
+                    echo "<td>" . (isset($record['prelim_exam']) ? htmlspecialchars($record['prelim_exam']) : 'N/A') . '/' . $prelim_exam_total; "</td>";
+                    echo "<td>" . (isset($record['midterm_exam']) ? htmlspecialchars($record['midterm_exam']) : 'N/A') . '/' . $midterm_exam_total; "</td>";
+                    echo "<td>" . (isset($record['final_exam']) ? htmlspecialchars($record['final_exam']) : 'N/A') . '/' . $final_exam_total; "</td>";
                     echo "<td>" . (isset($record['final_grade']) ? htmlspecialchars($record['final_grade']) : 'N/A') . "</td>";
-                    echo "<td>" . (isset($record['remarks']) ? htmlspecialchars($record['remarks']) : 'N/A') . "</td>";                    
+                    echo "<td>" . (isset($record['remarks']) ? htmlspecialchars($record['remarks']) : 'N/A') . "</td>";     
                     echo "</tr>";
                 }
             } else {
